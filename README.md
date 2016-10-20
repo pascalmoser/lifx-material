@@ -4,7 +4,7 @@ Client side web application to control your LIFX bulbs.
 ## Demo
 https://pascalmoser.ch/lifx-material/
 
-## Using technologies
+## Technologies
 
 1. Angular JS: https://angularjs.org/
 2. Angular Material: https://material.angularjs.org/
