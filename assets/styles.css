@@ -9,4 +9,8 @@
 		bottom: 19px;
 		right: 21px;
 	}
+	md-card md-card-title md-card-title-media .md-media-sm {
+		width: 40px;
+		height: 40px;
+	}
 }
