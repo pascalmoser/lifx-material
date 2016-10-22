@@ -41,7 +41,7 @@
                         var bulbwrapper = angular.element( document.querySelector( '#bulpwrapper' ) );
                         angular.forEach(response.data, function(value, key) {
                             console.log(value.label);
-                            bulbwrapper.append('<div></div>');
+                            bulbwrapper.include('src/templates/Bulb.html')
                         });
                     }
                 },
