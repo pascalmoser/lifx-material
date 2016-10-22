@@ -20,7 +20,7 @@
                             <label>API Token</label>
                             <input ng-change="apichange()" ng-model="apitoken">
                         </md-input-container>
-                        <div id="bulpwrapper" layout-xs="column" layout="row" ng-repeat="bulb in bulbs" my-bulbs="bulb">
+                        <div id="bulpwrapper" layout-xs="column" layout="row" my-bulbs="bulb">
                             <div flex-xs="" flex-gt-xs="50" flex-gt-md="20" layout="column" ng-repeat="bulb in bulbs">
                                 <md-card>
                                     <md-card-title>
@@ -98,6 +98,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-aria.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
+        <script src="assets/hsvToRgb.js"></script>
         <script src="src/app.js"></script>
     </body>
 </html>
