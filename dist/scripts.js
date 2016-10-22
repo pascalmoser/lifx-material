@@ -2,7 +2,7 @@
     'use strict';
 
     angular
-    .module('LifxMaterial',['ngMaterial'])
+    .module('LifxMaterial',['ngMaterial', 'ngStorage'])
     .config(function($mdThemingProvider) {
         $mdThemingProvider.theme('default')
         .primaryPalette('blue-grey')
@@ -11,7 +11,7 @@
     })
     .controller('AppCtrl', AppCtrl);
 
-    function AppCtrl ( $scope, $http, $mdToast ) {
+    function AppCtrl ( $scope, $http, $mdToast, $localStorage ) {
         $scope.color={
             red: 255,
             green: 255,
@@ -22,8 +22,9 @@
             cycles:4,
             type:'pulse'
         }
+        $scope.$storage = $localStorage;
         $scope.effectsOn = false;
-        $scope.apitoken='';
+        $scope.apitoken=$scope.$storage.api;
         $scope.submitProgress=false;
 
         $scope.submitLight=function(){
