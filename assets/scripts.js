@@ -29,6 +29,27 @@
 
         $scope.apichange = function() {
             $scope.$storage.api = $scope.apitoken;
+
+            $http({
+                method: 'GET',
+                url: "https://api.lifx.com/v1/lights/all",
+                headers: {'Authorization': 'Bearer '+$scope.apitoken, 'Content-Type': 'application/json'},
+            }).then(
+                function(response){
+                    console.log(response);
+                    if(response.status == 200) {
+                        var bulbwrapper = angular.element( document.querySelector( '#bulpwrapper' ) );
+                        angular.forEach(response.data, function(value, key) {
+                            console.log(value.label);
+                            bulbwrapper.append('<div></div>');
+                        });
+                    }
+                },
+                function(response){
+                    showCustomToast( $mdToast, "Status " + response.status + " " + response.statusText + " (" + response.data.error + ")" );
+                    $scope.submitProgress=false;
+                }
+            );
         }
 
         $scope.submitLight=function() {
