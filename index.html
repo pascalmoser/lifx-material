@@ -18,7 +18,7 @@
                         <h2 class="md-headline">Lamp</h2>
                         <md-input-container class="md-block" flex-gt-sm>
                             <label>API Token</label>
-                            <input ng-change="$storage.api = apitoken" ng-model="apitoken">
+                            <input ng-change="apichange()" ng-model="apitoken">
                         </md-input-container>
                         <h2 class="md-headline">Color</h2>
                         <md-slider-container>

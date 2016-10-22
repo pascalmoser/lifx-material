@@ -27,7 +27,11 @@
         $scope.apitoken=$scope.$storage.api;
         $scope.submitProgress=false;
 
-        $scope.submitLight=function(){
+        $scope.apichange = function() {
+            $scope.$storage.api = $scope.apitoken;
+        }
+
+        $scope.submitLight=function() {
             $scope.submitProgress=true;
             var color='rgb:'+$scope.color.red+','+$scope.color.green+','+$scope.color.blue;
             var url= !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type;
