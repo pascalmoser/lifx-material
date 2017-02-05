@@ -2,7 +2,7 @@
 Client side web application to control your LIFX bulbs.
 
 ## Demo
-https://pascalmoser.ch/lifx-material/
+https://pascalmoser.github.io/lifx-material/
 
 ## Technologies
 
