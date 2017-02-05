@@ -20,24 +20,22 @@
                             <label>API Token</label>
                             <input ng-change="apichange()" ng-model="apitoken">
                         </md-input-container>
-                        <div id="bulpwrapper" layout-xs="column" layout="row" my-bulbs="bulb">
-                            <div flex-xs="" flex-gt-xs="50" flex-gt-md="20" layout="column" ng-repeat="bulb in bulbs">
+                        <div id="bulpwrapper" layout="flex" my-bulbs="bulb" layout-wrap>
+                            <div flex-xs="100" flex-gt-xs="100" flex-md="50" flex-lg="33" ng-repeat="bulb in bulbs">
                                 <md-card>
                                     <md-card-title>
                                         <md-card-title-text>
-                                            <span class="md-headline">{{bulb.name}}</span>
-                                            <span class="md-subhead">{{bulb.group}}, {{bulb.location}}</span>
+                                            <md-switch ng-model="bulb.state" aria-label="{{bulb.name}}">
+                                                <span class="md-headline" ng-attr-style="opacity:{{bulb.state ? 1 : .45}}">
+                                                    {{bulb.name}}
+                                                </span>
+                                                <span class="md-subhead">{{bulb.group}}, {{bulb.location}}</span>
+                                            </md-switch>
                                         </md-card-title-text>
                                         <md-card-title-media>
                                             <div class="md-media-sm card-media" ng-attr-style="background-color: rgb({{bulb.color.r}},{{bulb.color.g}},{{bulb.color.b}})"></div>
                                         </md-card-title-media>
                                     </md-card-title>
-                                    <md-card-actions layout="row" layout-align="end center">
-                                        <!--
-                                        <md-button>Action 1</md-button>
-                                        <md-button>Action 2</md-button>
-                                        -->
-                                    </md-card-actions>
                                 </md-card>
                             </div>
                         </div>

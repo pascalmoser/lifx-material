@@ -10,7 +10,13 @@
 		right: 21px;
 	}
 	md-card md-card-title md-card-title-media .md-media-sm {
-		width: 40px;
-		height: 40px;
+		width: 70px;
+		height: 70px;
+	}
+	md-card-title-text md-switch .md-container {
+		margin-right: 20px;
+	}
+	md-card-title-text md-switch .md-headline {
+		display: block;
 	}
 }
