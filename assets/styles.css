@@ -13,10 +13,10 @@
 		width: 70px;
 		height: 70px;
 	}
-	md-card-title-text md-switch .md-container {
+	md-card-title-text md-checkbox .md-container {
 		margin-right: 20px;
 	}
-	md-card-title-text md-switch .md-headline {
+	md-card-title-text md-checkbox .md-headline {
 		display: block;
 	}
 }
