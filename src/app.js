@@ -9,11 +9,45 @@
                 .accentPalette('deep-purple')
                 .warnPalette('pink')
         })
-        .controller('AppCtrl', AppCtrl);
+        .controller('AppCtrl', AppCtrl)
+        .factory('apiService', ['$http', '$mdToast', function ($http, $mdToast) {
+            var showToast = function ($mdToast, toastMsg) {
+                $mdToast.show(
+                    $mdToast.simple()
+                        .action('OK')
+                        .highlightAction(true)
+                        .textContent(toastMsg)
+                        .position('top right')
+                        .hideDelay(6000)
+                );
+            };
+            var request = function ($scope, method, selector, action, token, data) {
+                return $http({
+                    method: method,
+                    url: 'https://api.lifx.com/v1/lights/' + selector + '/' + action,
+                    headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
+                    data: JSON.stringify(data)
+                }).then(
+                    function (response) {
+                        var toastMsg = "Status " + response.status + " " + response.statusText + " ";
+                        if (response.status == 207) {
+                            angular.forEach(response.data.results, function (value, key) {
+                                toastMsg += "(" + value.label + ": " + value.status + ") ";
+                            });
+                        }
+                        showToast($mdToast, toastMsg);
+                        $scope.submitProgress = false;
+                        return response.data;
+                    }
+                );
+            };
+            return {
+                request: request
+            };
 
-    function AppCtrl($scope, $http, $mdToast, $localStorage) {
+        }]);
 
-        console.log(hsvToRgb(260, 100, 100))
+    function AppCtrl($scope, $localStorage, apiService) {
 
         $scope.color = {
             red: 255,
@@ -40,115 +74,53 @@
 
         $scope.submitLight = function () {
             $scope.submitProgress = true;
-            var color = 'rgb:' + $scope.color.red + ',' + $scope.color.green + ',' + $scope.color.blue;
-            var url = !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type;
-            var data = !$scope.effectsOn ? '{"color":"' + color + '"}' : '{"period":"' + $scope.effect.period + '", "cycles":"' + $scope.effect.cycles + '", "color":"' + color + '"}';
             var method = !$scope.effectsOn ? 'PUT' : 'POST';
+            var action = !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type;
+            var color = 'rgb:' + $scope.color.red + ',' + $scope.color.green + ',' + $scope.color.blue;
+            var data = {'color': color};
 
-            $http({
-                method: method,
-                url: "https://api.lifx.com/v1/lights/all/" + url,
-                headers: {'Authorization': 'Bearer ' + $scope.apitoken, 'Content-Type': 'application/json'},
-                data: data
-            }).then(
-                function (response) {
-                    var toastMsg = "Status " + response.status + " " + response.statusText + " ";
-                    if (response.status == 207) {
-                        angular.forEach(response.data.results, function (value, key) {
-                            toastMsg += "(" + value.label + ": " + value.status + ") ";
-                        });
-                    }
-                    showCustomToast($mdToast, toastMsg);
-                    $scope.submitProgress = false;
-                    getBulbs();
-                },
-                function (response) {
-                    showCustomToast($mdToast, "Status " + response.status + " " + response.statusText + " (" + response.data.error + ")");
-                    $scope.submitProgress = false;
-                }
-            );
+            if ($scope.effectsOn) {
+                data.period = $scope.effect.period;
+                data.cycles = $scope.effect.cycles;
+            }
+
+            apiService.request($scope, method, 'all', action, $scope.apitoken, data).then(function (response) {
+                console.log(response);
+            });
+
         };
 
         $scope.changeState = function () {
-            var data = {"power" : this.bulb.state ? "off" : "on" };
-            console.log(data);
-            $http({
-                method: 'PUT',
-                url: "https://api.lifx.com/v1/lights/"+ this.bulb.id +"/" + 'state',
-                headers: {'Authorization': 'Bearer ' + $scope.apitoken, 'Content-Type': 'application/json'},
-                data: JSON.stringify(data)
-            }).then(
-                function (response) {
-                    console.log(response);
-                    var toastMsg = "Status " + response.status + " " + response.statusText + " ";
-                    if (response.status == 207) {
-                        angular.forEach(response.data.results, function (value, key) {
-                            toastMsg += "(" + value.label + ": " + value.status + ") ";
-                        });
-                    }
-                    showCustomToast($mdToast, toastMsg);
-                    $scope.submitProgress = false;
-                },
-                function (response) {
-                    showCustomToast($mdToast, "Status " + response.status + " " + response.statusText + " (" + response.data.error + ")");
-                    $scope.submitProgress = false;
-                }
-            );
+            var data = {'power': this.bulb.state ? 'off' : 'on'};
+            apiService.request($scope, 'PUT', this.bulb.id, 'state', $scope.apitoken, data);
         };
 
-        $scope.effectsOnSwitch = function() {
+        $scope.effectsOnSwitch = function () {
             var _ = this;
             console.log(_);
-            angular.forEach($scope.bulbs, function(bulb) {
+            angular.forEach($scope.bulbs, function (bulb) {
                 bulb.send = _.effectsOn;
                 bulb.sendChange = _.effectsOn;
             });
         };
 
-        function showCustomToast($mdToast, toastMsg) {
-            $mdToast.show(
-                $mdToast.simple()
-                    .action('OK')
-                    .highlightAction(true)
-                    .textContent(toastMsg)
-                    .position('top right')
-                    .hideDelay(6000)
-            );
-        }
-
         function getBulbs() {
-            $scope.$storage.api = $scope.apitoken;
+            var bulbs = [];
 
-            $http({
-                method: 'GET',
-                url: "https://api.lifx.com/v1/lights/all",
-                headers: {'Authorization': 'Bearer ' + $scope.apitoken, 'Content-Type': 'application/json'}
-            }).then(
-                function (response) {
-                    console.log(response);
-                    if (response.status == 200) {
-                        var bulbs = [];
-                        angular.forEach(response.data, function (value, key) {
-                            console.log(value);
-                            bulbs.push({
-                                id: value.id,
-                                name: value.label,
-                                color: hsvToRgb(value.color.hue, value.color.saturation * 100, value.brightness * 100),
-                                location: value.location.name,
-                                group: value.group.name,
-                                state: value.power === 'on',
-                                disconnected: !value.connected
-                            });
-                        });
-                        $scope.bulbs = bulbs;
-
-                    }
-                },
-                function (response) {
-                    showCustomToast($mdToast, "Status " + response.status + " " + response.statusText + " (" + response.data.error + ")");
-                    $scope.submitProgress = false;
-                }
-            );
+            apiService.request($scope, 'GET', 'all', '', $scope.apitoken, '').then(function (response) {
+                angular.forEach(response, function (value, key) {
+                    bulbs.push({
+                        id: value.id,
+                        name: value.label,
+                        color: hsvToRgb(value.color.hue, value.color.saturation * 100, value.brightness * 100),
+                        location: value.location.name,
+                        group: value.group.name,
+                        state: value.power === 'on',
+                        disconnected: !value.connected
+                    });
+                });
+                $scope.bulbs = bulbs;
+            });
         }
     }
 })();
