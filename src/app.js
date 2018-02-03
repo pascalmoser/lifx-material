@@ -67,24 +67,30 @@
         $scope.submitProgress = false;
         $scope.bulbs = [];
 
-        getBulbs();
+        getGroups();
+
         $scope.apichange = function () {
+            getGroups();
+        };
+
+        $scope.groupchange = function () {
             getBulbs();
         };
 
         $scope.submitLight = function () {
             $scope.submitProgress = true;
-            var method = !$scope.effectsOn ? 'PUT' : 'POST';
-            var action = !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type;
-            var color = 'rgb:' + $scope.color.red + ',' + $scope.color.green + ',' + $scope.color.blue;
-            var data = {'color': color};
+            var method = !$scope.effectsOn ? 'PUT' : 'POST',
+                selector = $scope.groupselector ? 'group_id:'+$scope.groupselector : 'all',
+                action = !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type,
+                color = 'rgb:' + $scope.color.red + ',' + $scope.color.green + ',' + $scope.color.blue,
+                data = {'color': color};
 
             if ($scope.effectsOn) {
                 data.period = $scope.effect.period;
                 data.cycles = $scope.effect.cycles;
             }
 
-            apiService.request($scope, method, 'all', action, $scope.apitoken, data).then(function (response) {
+            apiService.request($scope, method, selector, action, $scope.apitoken, data).then(function (response) {
                 console.log(response);
             });
 
@@ -105,9 +111,11 @@
         };
 
         function getBulbs() {
-            var bulbs = [];
+            var bulbs = [],
+                selector = $scope.groupselector ? 'group_id:'+$scope.groupselector : 'all';
 
-            apiService.request($scope, 'GET', 'all', '', $scope.apitoken, '').then(function (response) {
+
+            apiService.request($scope, 'GET', selector, '', $scope.apitoken, '').then(function (response) {
                 angular.forEach(response, function (value, key) {
                     bulbs.push({
                         id: value.id,
@@ -122,5 +130,32 @@
                 $scope.bulbs = bulbs;
             });
         }
+
+        function getGroups() {
+            var groups = {
+                0 : {
+                    id: 0,
+                    name: 'All'
+                }
+            };
+
+            apiService.request($scope, 'GET', 'all', '', $scope.apitoken, '').then(function (response) {
+                angular.forEach(response, function (value) {
+                    var newGroup = {
+                        id: value.group.id,
+                        name: value.group.name + ' (' + value.location.name + ')'
+                    };
+                    groups[value.group.id] = newGroup;
+                });
+                var groupArray = Object.keys(groups).map(function (key) {
+                    return groups[key];
+                });
+                groupArray.sort(function (a, b) {
+                    return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);
+                });
+                $scope.groups = groupArray;
+            });
+        }
+
     }
 })();

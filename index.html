@@ -1,105 +1,131 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>LIFX material</title>
-        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.6/angular-material.min.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <link rel="stylesheet" href="assets/styles.css">
-    </head>
-    <body>
-        <div ng-controller="AppCtrl" ng-cloak="" ng-app="LifxMaterial" class="inset layout-fill ng-scope layout-column">
-            <md-toolbar layout="row" class="md-toolbar-tools">
-                <h1>LIFX material</h1>
-            </md-toolbar>
-            <md-content id="content">
-                <md-card class="md-default-theme">
-                    <md-card-content>
-                        <h2 class="md-headline">Bulbs</h2>
-                        <md-input-container class="md-block" flex-gt-sm>
-                            <label>API Token</label>
-                            <input ng-change="apichange()" ng-model="apitoken">
-                        </md-input-container>
-                        <div id="bulpwrapper" layout="flex" my-bulbs="bulb" layout-wrap>
-                            <div flex-xs="100" flex-gt-xs="100" flex-md="50" flex-lg="33" flex-gt-lg="25" ng-repeat="bulb in bulbs">
-                                <md-card>
-                                    <md-card-title>
-                                        <md-card-title-text layout="row" layout-align="start space-between">
-                                            <md-checkbox ng-disabled="bulb.disconnected" md-indeterminate="!bulb.sendChange" ng-model="bulb.send"  ng-init="bulb.send=true; bulb.sendChange=true">
+<head>
+    <meta charset="utf-8">
+    <title>LIFX material</title>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.6/angular-material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div ng-controller="AppCtrl" ng-cloak="" ng-app="LifxMaterial" class="inset layout-fill ng-scope layout-column">
+    <md-toolbar layout="row" class="md-toolbar-tools">
+        <h1>LIFX material</h1>
+    </md-toolbar>
+    <md-content id="content">
+        <md-card class="md-default-theme">
+            <md-card-content>
+                <h2 class="md-headline">Bulbs</h2>
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>API Token</label>
+                    <input ng-change="apichange()" ng-model="apitoken">
+                </md-input-container>
+
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Group</label>
+                    <md-select ng-change="groupchange()" ng-model="groupselector">
+                        <md-option ng-repeat="group in groups" ng-value="group.id">
+                            {{group.name}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+
+                <div id="bulpwrapper" layout="flex" my-bulbs="bulb" layout-wrap>
+                    <div flex-xs="100" flex-gt-xs="100" flex-md="50" flex-lg="33" flex-gt-lg="25"
+                         ng-repeat="bulb in bulbs">
+                        <md-card>
+                            <md-card-title>
+                                <md-card-title-text layout="row" layout-align="start space-between">
+                                    <md-checkbox ng-disabled="bulb.disconnected" md-indeterminate="!bulb.sendChange"
+                                                 ng-model="bulb.send" ng-init="bulb.send=true; bulb.sendChange=true">
                                                 <span class="md-headline">
                                                     {{bulb.name}}
-                                                    <span ng-show="bulb.disconnected" class="md-subhead">Not connected!</span>
+                                                    <span ng-show="bulb.disconnected"
+                                                          class="md-subhead">Not connected!</span>
                                                 </span>
-                                                <span class="md-subhead">{{bulb.group}}, {{bulb.location}}</span>
-                                            </md-checkbox>
-                                        </md-card-title-text>
-                                        <md-switch ng-disabled="bulb.disconnected" ng-click="changeState()" ng-model="bulb.state" aria-label="{{bulb.name}}"></md-switch>
-                                        <md-card-title-media>
-                                            <div class="md-media-sm card-media" ng-attr-style="background-color: rgb({{bulb.color.r}},{{bulb.color.g}},{{bulb.color.b}})">
-                                            </div>
-                                        </md-card-title-media>
-                                    </md-card-title>
-                                </md-card>
-                            </div>
-                        </div>
-                        <h2 class="md-headline">Color</h2>
-                        <md-slider-container>
-                            <span>R</span>
-                            <md-slider flex ng-model="color.red" min="1" max="255" value="255" aria-label="red" id="red-slider" class="md-primary"></md-slider>
-                            <md-input-container>
-                                <input flex type="number" ng-model="color.red" aria-label="red" aria-controls="red-slider">
-                            </md-input-container>
-                        </md-slider-container>
-                        <md-slider-container>
-                            <span>G</span>
-                            <md-slider flex ng-model="color.green" min="1" max="255" aria-label="green" id="green-slider" class="md-primary"></md-slider>
-                            <md-input-container>
-                                <input flex type="number" ng-model="color.green" aria-label="green" aria-controls="green-slider">
-                            </md-input-container>
-                        </md-slider-container>
-                        <md-slider-container>
-                            <span>B</span>
-                            <md-slider flex ng-model="color.blue" min="1" max="255" aria-label="blue" id="blue-slider" class="md-primary"></md-slider>
-                            <md-input-container>
-                                <input flex type="number" ng-model="color.blue" aria-label="blue" aria-controls="blue-slider">
-                            </md-input-container>
-                        </md-slider-container>
-                        <md-switch ng-model="effectsOn" ng-click="effectsOnSwitch()" aria-label="Effects" class="md-primary">
-                            <h2 ng-attr-style="opacity:{{effectsOn ? 1 : .45}}" class="md-headline">Effects <span class="md-subhead">(works only with all bulbs together.)</span></h2>
-                        </md-switch>
-                        <md-slider-container ng-disabled="!effectsOn">
-                            <span>Periods</span>
-                                <md-slider flex ng-model="effect.period" min="0.1" max="10" step="0.1" value="10" aria-label="Periods" class="md-primary"></md-slider>
-                                <md-input-container>
-                                    <input flex type="number" ng-model="effect.period" aria-label="Periods" aria-controls="period-slider">
-                                </md-input-container>
-                        </md-slider-container>
-                        <md-slider-container ng-disabled="!effectsOn">
-                            <span>Cycles</span>
-                            <md-slider flex ng-model="effect.cycles" min="1" max="30" step="1" value="10" aria-label="Cycles" class="md-primary"></md-slider>
-                            <md-input-container>
-                                <input flex type="number" ng-model="effect.cycles" aria-label="Cycles" aria-controls="cycles-slider">
-                            </md-input-container>
-                        </md-slider-container>
-                        <h3 class="md-subhead" ng-attr-style="opacity:{{effectsOn ? 1 : .45}}">Effect Type</h3>
-                        <md-radio-group ng-model="effect.type" ng-disabled="!effectsOn">
-                            <md-radio-button value="pulse">Pulse</md-radio-button>
-                            <md-radio-button value="breathe">Breathe</md-radio-button>
-                        </md-radio-group>
-                    </md-card-content>
-                </md-card>
-            </md-content>
-            <md-progress-circular ng-disabled="!submitProgress" ng-show="submitProgress" md-mode="indeterminate" class="md-primary md-hue-1 progress-bottom-right" md-diameter="70"></md-progress-circular>
-            <md-button ng-click="submitLight()" class="md-fab md-fab-bottom-right lifx-submit" aria-label="Submit" ng-attr-style="background-color: rgb({{color.red}},{{color.green}},{{color.blue}})">
-            <i class="material-icons">&#xE25F;</i>
-            </md-button>
-        </div>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular-animate.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular-aria.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.6/angular-material.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
-        <script src="assets/hsvToRgb.js"></script>
-        <script src="src/app.js"></script>
-    </body>
+                                        <span class="md-subhead">{{bulb.group}}, {{bulb.location}}</span>
+                                    </md-checkbox>
+                                </md-card-title-text>
+                                <md-switch ng-disabled="bulb.disconnected" ng-click="changeState()"
+                                           ng-model="bulb.state" aria-label="{{bulb.name}}"></md-switch>
+                                <md-card-title-media>
+                                    <div class="md-media-sm card-media"
+                                         ng-attr-style="background-color: rgb({{bulb.color.r}},{{bulb.color.g}},{{bulb.color.b}})">
+                                    </div>
+                                </md-card-title-media>
+                            </md-card-title>
+                        </md-card>
+                    </div>
+                </div>
+                <h2 class="md-headline">Color</h2>
+                <md-slider-container>
+                    <span>R</span>
+                    <md-slider flex ng-model="color.red" min="1" max="255" value="255" aria-label="red" id="red-slider"
+                               class="md-primary"></md-slider>
+                    <md-input-container>
+                        <input flex type="number" ng-model="color.red" aria-label="red" aria-controls="red-slider">
+                    </md-input-container>
+                </md-slider-container>
+                <md-slider-container>
+                    <span>G</span>
+                    <md-slider flex ng-model="color.green" min="1" max="255" aria-label="green" id="green-slider"
+                               class="md-primary"></md-slider>
+                    <md-input-container>
+                        <input flex type="number" ng-model="color.green" aria-label="green"
+                               aria-controls="green-slider">
+                    </md-input-container>
+                </md-slider-container>
+                <md-slider-container>
+                    <span>B</span>
+                    <md-slider flex ng-model="color.blue" min="1" max="255" aria-label="blue" id="blue-slider"
+                               class="md-primary"></md-slider>
+                    <md-input-container>
+                        <input flex type="number" ng-model="color.blue" aria-label="blue" aria-controls="blue-slider">
+                    </md-input-container>
+                </md-slider-container>
+                <md-switch ng-model="effectsOn" ng-click="effectsOnSwitch()" aria-label="Effects" class="md-primary">
+                    <h2 ng-attr-style="opacity:{{effectsOn ? 1 : .45}}" class="md-headline">Effects <span
+                            class="md-subhead">(works only with all bulbs together.)</span></h2>
+                </md-switch>
+                <md-slider-container ng-disabled="!effectsOn">
+                    <span>Periods</span>
+                    <md-slider flex ng-model="effect.period" min="0.1" max="10" step="0.1" value="10"
+                               aria-label="Periods" class="md-primary"></md-slider>
+                    <md-input-container>
+                        <input flex type="number" ng-model="effect.period" aria-label="Periods"
+                               aria-controls="period-slider">
+                    </md-input-container>
+                </md-slider-container>
+                <md-slider-container ng-disabled="!effectsOn">
+                    <span>Cycles</span>
+                    <md-slider flex ng-model="effect.cycles" min="1" max="30" step="1" value="10" aria-label="Cycles"
+                               class="md-primary"></md-slider>
+                    <md-input-container>
+                        <input flex type="number" ng-model="effect.cycles" aria-label="Cycles"
+                               aria-controls="cycles-slider">
+                    </md-input-container>
+                </md-slider-container>
+                <h3 class="md-subhead" ng-attr-style="opacity:{{effectsOn ? 1 : .45}}">Effect Type</h3>
+                <md-radio-group ng-model="effect.type" ng-disabled="!effectsOn">
+                    <md-radio-button value="pulse">Pulse</md-radio-button>
+                    <md-radio-button value="breathe">Breathe</md-radio-button>
+                </md-radio-group>
+            </md-card-content>
+        </md-card>
+    </md-content>
+    <md-progress-circular ng-disabled="!submitProgress" ng-show="submitProgress" md-mode="indeterminate"
+                          class="md-primary md-hue-1 progress-bottom-right" md-diameter="70"></md-progress-circular>
+    <md-button ng-click="submitLight()" class="md-fab md-fab-bottom-right lifx-submit" aria-label="Submit"
+               ng-attr-style="background-color: rgb({{color.red}},{{color.green}},{{color.blue}})">
+        <i class="material-icons">&#xE25F;</i>
+    </md-button>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular-animate.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular-aria.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.6/angular-material.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
+<script src="assets/hsvToRgb.js"></script>
+<script src="src/app.js"></script>
+</body>
 </html>
