@@ -83,12 +83,40 @@
                 selector = $scope.groupselector ? 'group_id:'+$scope.groupselector : 'all',
                 action = !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type,
                 color = 'rgb:' + $scope.color.red + ',' + $scope.color.green + ',' + $scope.color.blue,
-                data = {'color': color};
+                data = {'color': color},
+                statesSelector = [];
 
             if ($scope.effectsOn) {
                 data.period = $scope.effect.period;
                 data.cycles = $scope.effect.cycles;
             }
+
+            angular.forEach($scope.bulbs, function (bulb) {
+                if(!bulb.disconnected && !bulb.send) {
+                    statesSelector.push(bulb);
+                }
+            });
+
+            if(statesSelector.length > 0 && !$scope.effectsOn) {
+                method = 'PUT';
+                selector = '';
+                action = 'states';
+                data = {states : []};
+
+                angular.forEach(statesSelector, function (bulb) {
+                    data.states.push({
+                        selector: bulb.id,
+                        color: color
+                    })
+
+                });
+            }
+
+            console.log(data);
+
+            data.defaults = {
+                duration: 5.0
+            };
 
             apiService.request($scope, method, selector, action, $scope.apitoken, data).then(function (response) {
                 console.log(response);
@@ -124,7 +152,9 @@
                         location: value.location.name,
                         group: value.group.name,
                         state: value.power === 'on',
-                        disconnected: !value.connected
+                        disconnected: !value.connected,
+                        send: true,
+                        sendChange: true
                     });
                 });
                 $scope.bulbs = bulbs;
