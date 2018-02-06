@@ -4,10 +4,11 @@
     angular
         .module('LifxMaterial', ['ngMaterial', 'ngStorage'])
         .config(function ($mdThemingProvider) {
-            $mdThemingProvider.theme('default')
+            $mdThemingProvider
+                .theme('default')
                 .primaryPalette('blue-grey')
                 .accentPalette('deep-purple')
-                .warnPalette('pink')
+                .warnPalette('pink');
         })
         .controller('AppCtrl', AppCtrl)
         .factory('apiService', ['$http', '$mdToast', function ($http, $mdToast) {
@@ -21,7 +22,7 @@
                         .hideDelay(6000)
                 );
             };
-            var request = function ($scope, method, selector, action, token, data) {
+            var request = function ($scope, method, selector, action, token, data, showToaster) {
                 return $http({
                     method: method,
                     url: 'https://api.lifx.com/v1/lights/' + selector + '/' + action,
@@ -35,11 +36,19 @@
                                 toastMsg += "(" + value.label + ": " + value.status + ") ";
                             });
                         }
-                        showToast($mdToast, toastMsg);
+                        if(showToaster) {
+                            showToast($mdToast, toastMsg);
+                        }
                         $scope.submitProgress = false;
                         return response.data;
+
+                    }, function (response) {
+                        var toastMsg = "Error " + response.status + " " + response.statusText + " ";
+                        showToast($mdToast, toastMsg);
+                        $scope.submitProgress = false;
+                        return false;
                     }
-                );
+                )
             };
             return {
                 request: request
@@ -47,7 +56,7 @@
 
         }]);
 
-    function AppCtrl($scope, $localStorage, apiService) {
+    function AppCtrl($scope, $localStorage, $filter, apiService) {
 
         $scope.color = {
             red: 255,
@@ -80,11 +89,12 @@
         $scope.submitLight = function () {
             $scope.submitProgress = true;
             var method = !$scope.effectsOn ? 'PUT' : 'POST',
-                selector = $scope.groupselector ? 'group_id:'+$scope.groupselector : 'all',
+                selector = $scope.groupselector ? 'group_id:' + $scope.groupselector : 'all',
                 action = !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type,
                 color = 'rgb:' + $scope.color.red + ',' + $scope.color.green + ',' + $scope.color.blue,
                 data = {'color': color},
-                statesSelector = [];
+                multipleSelector = false,
+                multipleSelectorId = [];
 
             if ($scope.effectsOn) {
                 data.period = $scope.effect.period;
@@ -92,59 +102,40 @@
             }
 
             angular.forEach($scope.bulbs, function (bulb) {
-                if(!bulb.disconnected && !bulb.send) {
-                    statesSelector.push(bulb);
+                if (!bulb.disconnected && !bulb.send) {
+                    multipleSelector = true;
+                } else if (!bulb.disconnected && bulb.send) {
+                    multipleSelectorId.push(bulb.id);
                 }
             });
 
-            if(statesSelector.length > 0 && !$scope.effectsOn) {
-                method = 'PUT';
-                selector = '';
-                action = 'states';
-                data = {states : []};
-
-                angular.forEach(statesSelector, function (bulb) {
-                    data.states.push({
-                        selector: bulb.id,
-                        color: color
-                    })
-
-                });
+            if (multipleSelector) {
+                selector = multipleSelectorId.join(',');
             }
 
-            console.log(data);
-
-            data.defaults = {
-                duration: 5.0
-            };
-
-            apiService.request($scope, method, selector, action, $scope.apitoken, data).then(function (response) {
-                console.log(response);
+            apiService.request($scope, method, selector, action, $scope.apitoken, data, true).then(function (response) {
+                if (response !== false) {
+                    getBulbs();
+                }
             });
 
         };
 
         $scope.changeState = function () {
             var data = {'power': this.bulb.state ? 'off' : 'on'};
-            apiService.request($scope, 'PUT', this.bulb.id, 'state', $scope.apitoken, data);
-        };
-
-        $scope.effectsOnSwitch = function () {
-            var _ = this;
-            console.log(_);
-            angular.forEach($scope.bulbs, function (bulb) {
-                bulb.send = _.effectsOn;
-                bulb.sendChange = _.effectsOn;
-            });
+            apiService.request($scope, 'PUT', this.bulb.id, 'state', $scope.apitoken, data, true);
         };
 
         function getBulbs() {
             var bulbs = [],
-                selector = $scope.groupselector ? 'group_id:'+$scope.groupselector : 'all';
+                existingBulbs = $scope.bulbs,
+                existingBulb = null,
+                selector = $scope.groupselector ? 'group_id:' + $scope.groupselector : 'all';
 
-
-            apiService.request($scope, 'GET', selector, '', $scope.apitoken, '').then(function (response) {
+            apiService.request($scope, 'GET', selector, '', $scope.apitoken, '', false).then(function (response) {
                 angular.forEach(response, function (value, key) {
+                    existingBulb = $filter('filter')(existingBulbs, {id: value.id}, true)[0];
+
                     bulbs.push({
                         id: value.id,
                         name: value.label,
@@ -153,7 +144,7 @@
                         group: value.group.name,
                         state: value.power === 'on',
                         disconnected: !value.connected,
-                        send: true,
+                        send: existingBulb ? existingBulb.send : true,
                         sendChange: true
                     });
                 });
@@ -163,13 +154,13 @@
 
         function getGroups() {
             var groups = {
-                0 : {
+                0: {
                     id: 0,
                     name: 'All'
                 }
             };
 
-            apiService.request($scope, 'GET', 'all', '', $scope.apitoken, '').then(function (response) {
+            apiService.request($scope, 'GET', 'all', '', $scope.apitoken, '', false).then(function (response) {
                 angular.forEach(response, function (value) {
                     var newGroup = {
                         id: value.group.id,

@@ -9,6 +9,9 @@
 		bottom: 19px;
 		right: 21px;
 	}
+	.bulb-color {
+		border-radius: 50%;
+	}
 	md-card md-card-title md-card-title-media .md-media-sm {
 		width: 70px;
 		height: 70px;

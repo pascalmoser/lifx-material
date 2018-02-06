@@ -49,8 +49,8 @@
                                 <md-switch ng-disabled="bulb.disconnected" ng-click="changeState()"
                                            ng-model="bulb.state" aria-label="{{bulb.name}}"></md-switch>
                                 <md-card-title-media>
-                                    <div class="md-media-sm card-media"
-                                         ng-attr-style="background-color: rgb({{bulb.color.r}},{{bulb.color.g}},{{bulb.color.b}})">
+                                    <div class="md-media-sm card-media md-whiteframe-5dp bulb-color"
+                                         ng-attr-style="background-color: rgb({{bulb.color.r}},{{bulb.color.g}},{{bulb.color.b}});">
                                     </div>
                                 </md-card-title-media>
                             </md-card-title>
@@ -83,9 +83,8 @@
                         <input flex type="number" ng-model="color.blue" aria-label="blue" aria-controls="blue-slider">
                     </md-input-container>
                 </md-slider-container>
-                <md-switch ng-model="effectsOn" ng-click="effectsOnSwitch()" aria-label="Effects" class="md-primary">
-                    <h2 ng-attr-style="opacity:{{effectsOn ? 1 : .45}}" class="md-headline">Effects <span
-                            class="md-subhead">(works only with all bulbs together.)</span></h2>
+                <md-switch ng-model="effectsOn" aria-label="Effects" class="md-primary">
+                    <h2 ng-attr-style="opacity:{{effectsOn ? 1 : .45}}" class="md-headline">Effects</h2>
                 </md-switch>
                 <md-slider-container ng-disabled="!effectsOn">
                     <span>Periods</span>
