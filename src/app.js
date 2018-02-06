@@ -31,6 +31,17 @@
                 }).then(
                     function (response) {
                         var toastMsg = "Status " + response.status + " " + response.statusText + " ";
+                        var curl = 'curl -X '+method+' "https://api.lifx.com/v1/lights/'+selector+'/'+action+'" '
+                            + '-H "Authorization: Bearer '+ token +'" '
+                            + '-H "Content-Type: application/json" ';
+                        if(data !== '') {
+                            curl += '-d \''+ JSON.stringify(data) + '\'';
+                        }
+
+                        if (window.console && showToaster) {
+                            console.log('%c ' + curl, 'background: #333; color: #bada55; padding: 4px 2px; line-height: 1.8;');
+                        }
+
                         if (response.status == 207) {
                             angular.forEach(response.data.results, function (value, key) {
                                 toastMsg += "(" + value.label + ": " + value.status + ") ";
@@ -39,6 +50,7 @@
                         if(showToaster) {
                             showToast($mdToast, toastMsg);
                         }
+
                         $scope.submitProgress = false;
                         return response.data;
 
@@ -59,15 +71,15 @@
     function AppCtrl($scope, $localStorage, $filter, apiService) {
 
         $scope.color = {
-            red: 255,
-            green: 255,
-            blue: 255
+            red: 96,
+            green: 125,
+            blue: 139
         };
 
         $scope.effect = {
             period: 1,
             cycles: 4,
-            type: 'pulse'
+            type: 'breathe'
         };
 
         $scope.$storage = $localStorage;
