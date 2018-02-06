@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.6/angular-material.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="assets/styles.css">
+    <link rel="icon" type="image/png" href="favicon.png" />
 </head>
 <body>
 <div ng-controller="AppCtrl" ng-cloak="" ng-app="LifxMaterial" class="inset layout-fill ng-scope layout-column">
@@ -106,8 +107,8 @@
                 </md-slider-container>
                 <h3 class="md-subhead" ng-attr-style="opacity:{{effectsOn ? 1 : .45}}">Effect Type</h3>
                 <md-radio-group ng-model="effect.type" ng-disabled="!effectsOn">
-                    <md-radio-button value="pulse">Pulse</md-radio-button>
                     <md-radio-button value="breathe">Breathe</md-radio-button>
+                    <md-radio-button value="pulse">Pulse</md-radio-button>
                 </md-radio-group>
             </md-card-content>
         </md-card>
