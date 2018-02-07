@@ -176,7 +176,7 @@
                 }
             };
 
-            apiService.request($scope, 'GET', 'all', '', $scope.apitoken, '', false).then(function (response) {
+            apiService.request($scope, 'GET', 'all', '', $scope.apitoken, '', true).then(function (response) {
                 angular.forEach(response, function (value) {
                     var newGroup = {
                         id: value.group.id,
