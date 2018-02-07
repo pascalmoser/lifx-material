@@ -13,6 +13,7 @@
         .controller('AppCtrl', AppCtrl)
         .factory('apiService', ['$http', '$mdToast', function ($http, $mdToast) {
             var showToast = function ($mdToast, toastMsg) {
+
                 $mdToast.show(
                     $mdToast.simple()
                         .action('OK')
@@ -31,11 +32,11 @@
                 }).then(
                     function (response) {
                         var toastMsg = "Status " + response.status + " " + response.statusText + " ";
-                        var curl = 'curl -X '+method+' "https://api.lifx.com/v1/lights/'+selector+'/'+action+'" '
-                            + '-H "Authorization: Bearer '+ token +'" '
+                        var curl = 'curl -X ' + method + ' "https://api.lifx.com/v1/lights/' + selector + '/' + action + '" '
+                            + '-H "Authorization: Bearer ' + token + '" '
                             + '-H "Content-Type: application/json" ';
-                        if(data !== '') {
-                            curl += '-d \''+ JSON.stringify(data) + '\'';
+                        if (data !== '') {
+                            curl += '-d \'' + JSON.stringify(data) + '\'';
                         }
 
                         if (window.console && showToaster) {
@@ -47,7 +48,8 @@
                                 toastMsg += "(" + value.label + ": " + value.status + ") ";
                             });
                         }
-                        if(showToaster) {
+
+                        if (showToaster) {
                             showToast($mdToast, toastMsg);
                         }
 
@@ -57,6 +59,7 @@
                     }, function (response) {
                         var toastMsg = "Error " + response.status + " " + response.statusText + " ";
                         showToast($mdToast, toastMsg);
+
                         $scope.submitProgress = false;
                         return false;
                     }
@@ -160,6 +163,7 @@
                         sendChange: true
                     });
                 });
+
                 $scope.bulbs = bulbs;
             });
         }
@@ -180,12 +184,15 @@
                     };
                     groups[value.group.id] = newGroup;
                 });
+
                 var groupArray = Object.keys(groups).map(function (key) {
                     return groups[key];
                 });
+
                 groupArray.sort(function (a, b) {
                     return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);
                 });
+
                 $scope.groups = groupArray;
             });
         }
