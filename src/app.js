@@ -23,7 +23,7 @@
                         .hideDelay(6000)
                 );
             };
-            var request = function ($scope, method, selector, action, token, data, showToaster) {
+            var request = function ($scope, method, selector, action, token, data, showMsg) {
                 return $http({
                     method: method,
                     url: 'https://api.lifx.com/v1/lights/' + selector + '/' + action,
@@ -39,7 +39,7 @@
                             curl += '-d \'' + JSON.stringify(data) + '\'';
                         }
 
-                        if (window.console && showToaster) {
+                        if (window.console && showMsg) {
                             console.log('%c ' + curl, 'background: #333; color: #bada55; padding: 4px 2px; line-height: 1.8;');
                         }
 
@@ -49,7 +49,7 @@
                             });
                         }
 
-                        if (showToaster) {
+                        if (showMsg) {
                             showToast($mdToast, toastMsg);
                         }
 
@@ -57,7 +57,7 @@
                         return response.data;
 
                     }, function (response) {
-                        var toastMsg = "Error " + response.status + " " + response.statusText + " ";
+                        var toastMsg = "Error " + response.status + ": " + response.data.error + " ";
                         showToast($mdToast, toastMsg);
 
                         $scope.submitProgress = false;
