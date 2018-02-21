@@ -18,7 +18,7 @@
         <h1>lifx-material</h1>
 
         <a class="github-link" target="_blank" href="https://github.com/pascalmoser/lifx-material">
-            <img src="assets/github.svg" alt="Github" />
+            <img src="assets/github.svg" alt="Github"/>
         </a>
     </md-toolbar>
 
@@ -30,7 +30,7 @@
 
                 <md-input-container class="md-block" flex-gt-sm>
                     <label>API Token</label>
-                    <input ng-change="apichange()" ng-model="apitoken">
+                    <input ng-change="apichange()" ng-model="api.token" ng-model-options="{updateOn: 'blur'}">
                 </md-input-container>
 
                 <md-input-container class="md-block" flex-gt-sm>
@@ -75,59 +75,70 @@
 
                 <md-slider-container>
                     <span>R</span>
-                    <md-slider flex ng-model="color.red" min="1" max="255" value="255" aria-label="red" id="red-slider"
+                    <md-slider ng-change="changeApiValues()" flex ng-model="color.red" min="1" max="255" value="255"
+                               aria-label="red" id="red-slider"
                                class="md-primary"></md-slider>
                     <md-input-container>
-                        <input flex type="number" ng-model="color.red" aria-label="red" aria-controls="red-slider">
+                        <input ng-change="changeApiValues()" flex type="number" ng-model="color.red" aria-label="red"
+                               aria-controls="red-slider">
                     </md-input-container>
                 </md-slider-container>
                 <md-slider-container>
                     <span>G</span>
-                    <md-slider flex ng-model="color.green" min="1" max="255" aria-label="green" id="green-slider"
+                    <md-slider ng-change="changeApiValues()" flex ng-model="color.green" min="1" max="255" aria-label="green" id="green-slider"
                                class="md-primary"></md-slider>
                     <md-input-container>
-                        <input flex type="number" ng-model="color.green" aria-label="green"
+                        <input ng-change="changeApiValues()" flex type="number" ng-model="color.green" aria-label="green"
                                aria-controls="green-slider">
                     </md-input-container>
                 </md-slider-container>
                 <md-slider-container>
                     <span>B</span>
-                    <md-slider flex ng-model="color.blue" min="1" max="255" aria-label="blue" id="blue-slider"
+                    <md-slider ng-change="changeApiValues()" flex ng-model="color.blue" min="1" max="255" aria-label="blue" id="blue-slider"
                                class="md-primary"></md-slider>
                     <md-input-container>
-                        <input flex type="number" ng-model="color.blue" aria-label="blue" aria-controls="blue-slider">
+                        <input ng-change="changeApiValues()" flex type="number" ng-model="color.blue" aria-label="blue" aria-controls="blue-slider">
                     </md-input-container>
                 </md-slider-container>
-                <md-switch ng-model="effectsOn" aria-label="Effects" class="md-primary">
+                <md-switch ng-change="changeApiValues()" ng-model="effectsOn" aria-label="Effects" class="md-primary">
 
                     <h2 ng-attr-style="opacity:{{effectsOn ? 1 : .45}}" class="md-headline">Effects</h2>
 
                 </md-switch>
                 <md-slider-container ng-disabled="!effectsOn">
                     <span>Periods</span>
-                    <md-slider flex ng-model="effect.period" min="0.1" max="10" step="0.1" value="10"
+                    <md-slider ng-change="changeApiValues()" flex ng-model="effect.period" min="0.1" max="10" step="0.1" value="10"
                                aria-label="Periods" class="md-primary"></md-slider>
                     <md-input-container>
-                        <input flex type="number" ng-model="effect.period" aria-label="Periods"
+                        <input ng-change="changeApiValues()" flex type="number" ng-model="effect.period" aria-label="Periods"
                                aria-controls="period-slider">
                     </md-input-container>
                 </md-slider-container>
                 <md-slider-container ng-disabled="!effectsOn">
                     <span>Cycles</span>
-                    <md-slider flex ng-model="effect.cycles" min="1" max="30" step="1" value="10" aria-label="Cycles"
+                    <md-slider ng-change="changeApiValues()" flex ng-model="effect.cycles" min="1" max="30" step="1" value="10" aria-label="Cycles"
                                class="md-primary"></md-slider>
                     <md-input-container>
-                        <input flex type="number" ng-model="effect.cycles" aria-label="Cycles"
+                        <input ng-change="changeApiValues()" flex type="number" ng-model="effect.cycles" aria-label="Cycles"
                                aria-controls="cycles-slider">
                     </md-input-container>
                 </md-slider-container>
 
                 <h3 class="md-subhead" ng-attr-style="opacity:{{effectsOn ? 1 : .45}}">Effect Type</h3>
 
-                <md-radio-group ng-model="effect.type" ng-disabled="!effectsOn">
+                <md-radio-group ng-change="changeApiValues()" ng-model="effect.type" ng-disabled="!effectsOn">
                     <md-radio-button value="breathe">Breathe</md-radio-button>
                     <md-radio-button value="pulse">Pulse</md-radio-button>
                 </md-radio-group>
+
+            </md-card-content>
+        </md-card>
+
+        <md-card md-theme="dark" flex-xs="75" flex-gt-xs="75" flex-md="75" flex-lg="75" flex-gt-lg="75">
+            <md-card-content>
+                <code class="instant-curl">curl -X {{api.method}} "https://api.lifx.com/v1/lights/{{ api.selector }}/{{ api.action }}" -H
+                    "Authorization: Bearer {{ api.token }}" -H "Content-Type: application/json" -d '{{ api.data
+                    }}'</code>
             </md-card-content>
         </md-card>
     </md-content>

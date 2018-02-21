@@ -9,6 +9,12 @@
                 .primaryPalette('blue-grey')
                 .accentPalette('deep-purple')
                 .warnPalette('pink');
+            $mdThemingProvider
+                .theme('dark')
+                .primaryPalette('green')
+                .accentPalette('green')
+                .warnPalette('green')
+                .dark();
         })
         .controller('AppCtrl', AppCtrl)
         .factory('apiService', ['$http', '$mdToast', function ($http, $mdToast) {
@@ -28,7 +34,7 @@
                     method: method,
                     url: 'https://api.lifx.com/v1/lights/' + selector + '/' + action,
                     headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
-                    data: JSON.stringify(data)
+                    data: data
                 }).then(
                     function (response) {
                         var toastMsg = "Status " + response.status + " " + response.statusText + " ";
@@ -87,35 +93,37 @@
 
         $scope.$storage = $localStorage;
         $scope.effectsOn = false;
-        $scope.apitoken = $scope.$storage.api;
         $scope.submitProgress = false;
         $scope.bulbs = [];
+
+
+        $scope.api = {
+            method: 'PUT',
+            selector: 'all',
+            action: 'state',
+            token: $scope.$storage.api,
+            data: ''
+        };
 
         getGroups();
 
         $scope.apichange = function () {
             getGroups();
-            $scope.$storage.api = $scope.apitoken;
+            $scope.$storage.api = $scope.api.token;
+            $scope.changeApiValues();
         };
 
         $scope.groupchange = function () {
             getBulbs();
+            $scope.changeApiValues();
         };
 
-        $scope.submitLight = function () {
-            $scope.submitProgress = true;
-            var method = !$scope.effectsOn ? 'PUT' : 'POST',
-                selector = $scope.groupselector ? 'group_id:' + $scope.groupselector : 'all',
-                action = !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type,
-                color = 'rgb:' + $scope.color.red + ',' + $scope.color.green + ',' + $scope.color.blue,
-                data = {'color': color},
+        $scope.changeApiValues = function() {
+            var selector = $scope.groupselector ? 'group_id:' + $scope.groupselector : 'all',
                 multipleSelector = false,
-                multipleSelectorId = [];
-
-            if ($scope.effectsOn) {
-                data.period = $scope.effect.period;
-                data.cycles = $scope.effect.cycles;
-            }
+                multipleSelectorId = [],
+                color = 'rgb:' + $scope.color.red + ',' + $scope.color.green + ',' + $scope.color.blue,
+                data = {'color': color};
 
             angular.forEach($scope.bulbs, function (bulb) {
                 if (!bulb.disconnected && !bulb.send) {
@@ -129,7 +137,24 @@
                 selector = multipleSelectorId.join(',');
             }
 
-            apiService.request($scope, method, selector, action, $scope.apitoken, data, true).then(function (response) {
+            if ($scope.effectsOn) {
+                data.period = $scope.effect.period;
+                data.cycles = $scope.effect.cycles;
+            }
+
+            $scope.api = {
+                method: $scope.effectsOn ? 'POST' : 'PUT',
+                selector: selector,
+                action: !$scope.effectsOn ? 'state' : 'effects/' + $scope.effect.type,
+                token: $scope.api.token,
+                data: data
+            };
+        };
+
+        $scope.submitLight = function () {
+            $scope.submitProgress = true;
+
+            apiService.request($scope, $scope.api.method, $scope.api.selector, $scope.api.action, $scope.api.token, $scope.api.data, true).then(function (response) {
                 if (response !== false) {
                     getBulbs();
                 }
@@ -139,7 +164,7 @@
 
         $scope.changeState = function () {
             var data = {'power': this.bulb.state ? 'off' : 'on'};
-            apiService.request($scope, 'PUT', this.bulb.id, 'state', $scope.apitoken, data, true);
+            apiService.request($scope, 'PUT', this.bulb.id, 'state', $scope.api.token, data, true);
         };
 
         function getBulbs() {
@@ -148,7 +173,7 @@
                 existingBulb = null,
                 selector = $scope.groupselector ? 'group_id:' + $scope.groupselector : 'all';
 
-            apiService.request($scope, 'GET', selector, '', $scope.apitoken, '', false).then(function (response) {
+            apiService.request($scope, 'GET', selector, '', $scope.api.token, '', false).then(function (response) {
                 angular.forEach(response, function (value, key) {
                     existingBulb = $filter('filter')(existingBulbs, {id: value.id}, true)[0];
 
@@ -177,7 +202,7 @@
                 }
             };
 
-            apiService.request($scope, 'GET', 'all', '', $scope.apitoken, '', true).then(function (response) {
+            apiService.request($scope, 'GET', 'all', '', $scope.api.token, '', true).then(function (response) {
                 angular.forEach(response, function (value) {
                     var newGroup = {
                         id: value.group.id,
