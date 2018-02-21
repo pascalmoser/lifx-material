@@ -95,6 +95,7 @@
 
         $scope.apichange = function () {
             getGroups();
+            $scope.$storage.api = $scope.apitoken;
         };
 
         $scope.groupchange = function () {
