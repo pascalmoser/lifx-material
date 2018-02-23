@@ -49,7 +49,7 @@
                             <md-card-title>
                                 <md-card-title-text layout="row" layout-align="start space-between">
                                     <md-checkbox ng-disabled="bulb.disconnected" md-indeterminate="!bulb.sendChange"
-                                                 ng-model="bulb.send"
+                                                 ng-model="bulb.send" ng-change="groupchange()"
                                                  ng-checked="bulb.disconnected ? false : bulb.send">
                                                 <span class="md-headline">
                                                     {{bulb.name}}
